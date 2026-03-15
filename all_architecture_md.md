@@ -1,0 +1,730 @@
+# 1. Arcee AI Trinity Large (400B)
+- **Vocabulary Size:** 200k
+- **Supported Context Length:** 256k tokens
+- **Embedding Dimension:** 3,072
+- **Architecture Flow:**
+  - Token embedding layer -> 60x Blocks -> Final RMSNorm -> Linear output layer
+  - **60x Block Details:**
+    - Pre-RMSNorm -> Grouped Query Attention (GQA) + Sliding Window Attention (SWA) in 3:1 ratio (with QKNorm, RoPE + NoPE, Gated attention) -> Post-RMSNorm -> Add (Residual)
+    - Pre-RMSNorm -> MoE -> Post-RMSNorm -> Add (Residual)
+- **Special Notes:** First 6 blocks use dense FFN with hidden size 12,288 instead of MoE.
+- **Attention Heads:** 48 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 3,072
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 400B
+  - 1 (shared) + 4 experts active per token
+  - Only 13B parameters are active per inference step
+
+***
+
+# 2. DeepSeek V3/R1 (671 billion)
+- **Vocabulary Size:** 129k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 7,168
+- **Architecture Flow:**
+  - Token embedding layer -> 61x Blocks -> Final RMSNorm -> Linear output layer
+  - **61x Block Details:**
+    - RMSNorm 1 -> Multi-head Latent Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 18,432 instead of MoE.
+- **Attention Heads:** 128 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 671B
+  - 1 (shared) + 8 experts active per token
+  - Only 37B parameters are active per inference step
+
+***
+
+# 3. DeepSeek V3/R1 (671 billion)
+*(Note: Diagram is identical to Image 2)*
+- **Vocabulary Size:** 129k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 7,168
+- **Architecture Flow:**
+  - Token embedding layer -> 61x Blocks -> Final RMSNorm -> Linear output layer
+  - **61x Block Details:**
+    - RMSNorm 1 -> Multi-head Latent Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 18,432 instead of MoE.
+- **Attention Heads:** 128 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 671B
+  - 1 (shared) + 8 experts active per token
+  - Only 37B parameters are active per inference step
+
+***
+
+# 4. DeepSeek V3.2 (671B)
+- **Vocabulary Size:** 129k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 7,168
+- **Architecture Flow:**
+  - Token embedding layer -> 61x Blocks -> Final RMSNorm -> Linear output layer
+  - **61x Block Details:**
+    - RMSNorm 1 -> Multi-head Latent Attention (MLA) + DeepSeek Sparse Attention (DSA) (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 18,432 instead of MoE.
+- **Attention Heads:** 128 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 671B
+  - 1 (shared) + 8 experts active per token
+  - Only 37B parameters are active per inference step
+
+***
+
+# 5. Gemma 3 27B
+- **Vocabulary Size:** 256k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 5,376
+- **Architecture Flow:**
+  - Token embedding layer -> 62x Blocks -> Final RMSNorm -> Linear output layer
+  - **62x Block Details:**
+    - Pre-RMSNorm 1 -> Grouped-query (plus sliding window) attention (with QK-Norm, RoPE) -> Post-RMSNorm 1 -> Add (Residual)
+    - Pre-RMSNorm 2 -> Feed forward -> Post-RMSNorm 2 -> Add (Residual)
+- **Attention Heads:** 32 attention heads, 16 key & value heads.
+- **Dense FeedForward Module:**
+  - Hidden layer dimension: 21,504
+  - Structure: Linear layer -> GELU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 6. GLM-4.5 (355B)
+- **Vocabulary Size:** 151k
+- **Embedding Dimension:** 5,120
+- **Architecture Flow:**
+  - Token embedding layer -> 92x Blocks -> Final RMSNorm -> Linear output layer
+  - **92x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with QKNorm, RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 12,288 instead of MoE.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 5,120
+  - Intermediate projection size: 1,536
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 160
+- **Resource Savings:**
+  - Model size is 355B
+  - 8 experts + 1 shared expert active per token
+  - Only 32B parameters are active per inference step
+
+***
+
+# 7. GLM-4.7 (355B)
+- **Vocabulary Size:** 151k
+- **Embedding Dimension:** 5,120
+- **Architecture Flow:**
+  - Token embedding layer -> 92x Blocks -> Final RMSNorm -> Linear output layer
+  - **92x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with QKNorm, RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 12,288 instead of MoE.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 5,120
+  - Intermediate projection size: 1,536
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 160
+- **Resource Savings:**
+  - Model size is 355B
+  - 8 experts + 1 shared expert active per token
+  - Only 32B parameters are active per inference step
+
+***
+
+# 8. GLM-5 (744B)
+- **Vocabulary Size:** 155k
+- **Embedding Dimension:** 6,144
+- **Architecture Flow:**
+  - Token embedding layer -> 78x Blocks -> Final RMSNorm -> Linear output layer
+  - **78x Block Details:**
+    - RMSNorm 1 -> Multi-head Latent Attention (MLA) + DeepSeek Sparse Attention (DSA) (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 12,288 instead of MoE.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 6,144
+  - Intermediate projection size: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 744B
+  - 8 experts + 1 shared expert active per token
+  - Only 40B parameters are active per inference step
+
+***
+
+# 9. GPT-OSS 20B
+- **Vocabulary Size:** 200k
+- **Supported Context Length:** 131k tokens
+- **Embedding Dimension:** 2,880
+- **Architecture Flow:**
+  - Token embedding layer -> 24x Blocks -> Final RMSNorm -> Linear output layer
+  - **24x Block Details:**
+    - RMSNorm 1 -> Grouped Query Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Attention Heads:** 64 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 2,880
+  - Intermediate projection size: 2,880
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 32
+- **Resource Savings:**
+  - Model size is 20B
+  - Only 4 experts active per token
+  - Only 3.6B parameters are active per inference step
+
+***
+
+# 10. GPT-OSS 120B
+- **Vocabulary Size:** 200k
+- **Supported Context Length:** 131k tokens
+- **Embedding Dimension:** 2,880
+- **Architecture Flow:**
+  - Token embedding layer -> 36x Blocks -> Final RMSNorm -> Linear output layer
+  - **36x Block Details:**
+    - RMSNorm 1 -> Grouped Query Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Attention Heads:** 64 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 2,880
+  - Intermediate projection size: 2,880
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 128
+- **Resource Savings:**
+  - Model size is 120B
+  - Only 4 experts active per token
+  - Only 5.1B parameters are active per inference step
+
+***
+
+# 11. Grok 2.5 (270B)
+- **Vocabulary Size:** 131k
+- **Embedding Dimension:** 8,192
+- **Architecture Flow:**
+  - Token embedding layer -> 64x Blocks -> Final RMSNorm -> Linear output layer
+  - **64x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> Parallel computation of **Dense feed forward** and **MoE** -> Both outputs add to Residual
+- **Dense FeedForward (SwiGLU) Module:**
+  - Input size: 8,192
+  - Intermediate projection size: 32,768
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 8,192
+  - Intermediate projection size: 16,384
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 8
+- **Resource Savings:**
+  - Model size is 270B
+  - Only 2 experts active per token
+  - Only 64x0.8B parameters are active per inference step for the MoE layers
+  - 64x1.6B parameters active per inference step for MoE + residual SwiGLU
+  - In total an estimated 62B parameters are active at each inference step
+
+***
+
+# 12. Kimi Linear 48B-A3B
+- **Architecture Flow:**
+  - Token embedding layer -> 27x Layers -> Final RMSNorm -> Linear output layer
+  - **27x Layers Details:**
+    - RMSNorm 1 -> Kimi Delta Attn or Multi-head Latent Attn -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Multi-head latent attention module:**
+  - QKNorm (RMSNorms), Linear, Linear -> Latent -> Linear, Linear
+  - Multi-head latent attention on Q, K, V -> Linear -> (optional Sigmoid Gate) Note: Kimi Linear does not use this gate (yet).
+- **Kimi Delta Attention module:**
+  - Linear -> Conv, Conv. SiLU gate. L2 Norm -> Q, K.
+  - V, alpha, beta. Gated Delta Rule -> RMSNorm -> multiply with Sigmoid Gate -> Linear.
+- **3:1 Ratio Layout:**
+  - Layer 1-3: Linear attention -> MoE
+  - Layer 4: Full attention -> MoE
+  - Layer 5-7: Linear attention -> MoE
+  - Layer 8: Full attention -> MoE
+
+***
+
+# 13. Kimi K2 (1 trillion)
+- **Vocabulary Size:** 160k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 7,168
+- **Architecture Flow:**
+  - Token embedding layer -> 61x Blocks -> Final RMSNorm -> Linear output layer
+  - **61x Block Details:**
+    - RMSNorm 1 -> Multi-head Latent Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 1 block uses dense FFN with hidden size 18,432 instead of MoE.
+- **Attention Heads:** 64 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 384
+- **Resource Savings:**
+  - Model size is 1T
+  - 1 (shared) + 8 experts active per token
+  - Only 32B parameters are active per inference step
+
+***
+
+# 14. Ling 2.5 (1T)
+- **Vocabulary Size:** 157k
+- **Embedding Size:** 8,192
+- **Architecture Flow:**
+  - Token embedding layer -> 80x Layers -> Final RMSNorm -> Linear output layer
+  - **80x Layers Details:**
+    - RMSNorm 1 -> Gated DeltaNet or Multi-head Latent Attention (Partial RoPE only in attention layers) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **MoE Module Details:** 256 experts, 63B parameters active.
+- **7:1 Ratio Layout:**
+  - Layer 1-7: Linear attention -> MoE
+  - Layer 8: Full attention* -> MoE
+  - *(Full attention = Multi-Head Latent Attention)*
+
+***
+
+# 15. Llama 4 Maverick (400B)
+- **Vocabulary Size:** 202k
+- **Supported Context Length:** 512k tokens
+- **Embedding Dimension:** 5,120
+- **Architecture Flow:**
+  - Token embedding layer -> 48x Blocks -> Final RMSNorm -> Linear output layer
+  - **48x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** Dense and MoE blocks alternate every 2nd block; hidden size 16,384 for dense layers.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 8,192
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 128
+- **Resource Savings:**
+  - Model size is 400B
+  - 1 (shared) + 1 expert active per token
+  - Only 17B parameters are active per inference step
+
+***
+
+# 16. Llama 3 8B
+- **Vocabulary Size:** 128k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 32x Blocks -> Final RMSNorm -> Linear output layer
+  - **32x Block Details:**
+    - RMSNorm 1 -> Masked grouped-query attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 32 heads.
+- **Dense FeedForward Module:**
+  - Hidden layer dimension: 14,336
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 17. MiniMax-M2.5 (230B)
+- **Vocabulary Size:** 200k
+- **Embedding Dimension:** 3,072
+- **Architecture Flow:**
+  - Token embedding layer -> 62x Blocks -> Final RMSNorm -> Linear output layer
+  - **62x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with QK-Norm, RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 3,072
+  - Intermediate projection size: 1,536
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 230B
+  - Only 8 experts active per token
+  - Only 10B parameters are active per inference step (i.e., only 4.37% parameters active)
+
+***
+
+# 18. MiniMax-M2 (230B)
+- **Vocabulary Size:** 151k
+- **Embedding Dimension:** 3,072
+- **Architecture Flow:**
+  - Token embedding layer -> 62x Blocks -> Final RMSNorm -> Linear output layer
+  - **62x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with QK-Norm, Partial RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 3,072
+  - Intermediate projection size: 1,536
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 229B
+  - Only 8 experts active per token
+  - Only 10B parameters are active per inference step (i.e., only 4.37% parameters active)
+
+***
+
+# 19. Mistral 3 Large (673 billion)
+- **Vocabulary Size:** 131k
+- **Supported Context Length:** 256k tokens
+- **Embedding Dimension:** 7,168
+- **Architecture Flow:**
+  - Token embedding layer -> 61x Blocks -> Final RMSNorm -> Linear output layer
+  - **61x Block Details:**
+    - RMSNorm 1 -> Multi-head Latent Attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 16,384 instead of MoE.
+- **Attention Heads:** 128 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 4,096
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 128
+- **Resource Savings:**
+  - Model size is 671B
+  - 1 (shared) + 4 experts active per token
+  - Only 41B parameters are active per inference step
+
+***
+
+# 20. Mistral 3.1 Small 24B
+- **Vocabulary Size:** 256k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 5,120
+- **Architecture Flow:**
+  - Token embedding layer -> 40x Blocks -> Final RMSNorm -> Linear output layer
+  - **40x Block Details:**
+    - Pre-RMSNorm 1 -> Grouped-query attention (with RoPE) -> Add (Residual)
+    - Pre-RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 40 attention heads, 8 key & value heads.
+- **Dense FeedForward Module:**
+  - Hidden layer dimension: 32,768
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 21. Nanbeige 4.1 3B
+- **Vocabulary Size:** 166k
+- **Supported Context Length:** 262k tokens
+- **Embedding Dimension:** 2,560
+- **Architecture Flow:**
+  - Token embedding layer -> 32x Blocks -> Final RMSNorm -> Linear output layer
+  - **32x Block Details:**
+    - RMSNorm 1 -> Grouped-query attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 20 Q heads, 4 KV heads (group size 5). head dim 128.
+- **Dense FeedForward Module:**
+  - Intermediate projection size: 10,496
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 22. Nemotron 3 Nano (30B-A3B)
+- **Architecture Flow:**
+  - Token embedding layer -> 52x Layers -> Final RMSNorm -> Linear output layer
+  - **Macro block sequence (5 macro blocks with 7 layers each):**
+    - 4x[MoE, Mamba-2]
+    - 1x [MoE, Attention, Mamba-2]
+    - 3x [MoE, Mamba-2]
+    - 5x Sequence of modules (repeating patterns)
+- **Mamba-2 Layer Module:**
+  - Linear -> RMSNorm -> Conv1D, SSM state update -> (x) -> SiLU Gate -> Linear
+- **Grouped-Query Attention (GQA) Module:**
+  - 2 KV heads (v, k)
+  - 4 Q heads (Head 1 to 4)
+- **MoE Layer Module:**
+  - Experts: Router -> Feed forward 1 ... 128
+  - Only 1 (shared) + 6 experts active per token (in each MoE layer)
+
+***
+
+# 23. Nemotron 3 Super (120B-A12B)
+- **Architecture Flow:**
+  - Token embedding layer -> 88x Layers -> Final RMSNorm -> Linear output layer -> Multi-token prediction (MTP)
+  - **88-layer hybrid stack summary:** 40 Mamba-2, 40 LatentMoE, 8 Attention.
+  - **Macro block visual layout:** Repeating sequences of [Latent MoE, Mamba-2] and[Latent MoE, Attention, Mamba-2] blocks with patterns like 4x, 1x, 3x.
+- **Latent MoE Layers Module:**
+  - Input -> Step 1: Select top-22 experts (Router).
+  - Step 2: down-project 4096 -> 1024 (Latent input).
+  - Step 3: Put latent inputs through experts (Latent expert 1...512).
+  - Step 4: Combine outputs.
+  - Step 5: up-project 1024 -> 4096 (Routed output) -> Combined with Shared expert output.
+  - 512 experts total. Latent size 1024. Only top-22 routed experts active per token.
+- **Mamba-2 Layer Module:** Linear -> RMSNorm -> Conv1D, SSM state update -> (x) -> SiLU Gate -> Linear
+- **Grouped-Query Attention (GQA) Module:** 2 KV heads, 16 Q heads.
+
+***
+
+# 24. Olmo 3 7B
+- **Vocabulary Size:** 100k
+- **Supported Context Length:** YaRN only for global layers
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 32x Blocks -> Final RMSNorm -> Linear output layer
+  - **32x Block Details:**
+    - Post-RMSNorm 1 -> 3:1 (local:global) sliding window multi-head attention (with QKNorm, RoPE + YaRN) -> Add (Residual)
+    - Post-RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 32 attention heads, 32 key & value heads (regular multi-head attention). Sliding window size 4096.
+- **Dense FeedForward Module:**
+  - Input size: 4,096
+  - Intermediate projection size: 11,008
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 25. Olmo 3 32B
+- **Vocabulary Size:** 100k
+- **Supported Context Length:** YaRN only for global layers
+- **Embedding Dimension:** 5,120
+- **Architecture Flow:**
+  - Token embedding layer -> 64x Blocks -> Final RMSNorm -> Linear output layer
+  - **64x Block Details:**
+    - Post-RMSNorm 1 -> 3:1 (local:global) sliding window grouped-query attention (with QKNorm, RoPE + YaRN) -> Add (Residual)
+    - Post-RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 40 attention heads, 8 key & value heads. Sliding window size 4096.
+- **Dense FeedForward Module:**
+  - Input size: 5,120
+  - Intermediate projection size: 27,648
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 26. OLMo 2 7B
+- **Vocabulary Size:** 100k
+- **Supported Context Length:** 4k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 32x Blocks -> Final RMSNorm -> Linear output layer
+  - **32x Block Details:**
+    - RMSNorm 1 -> Masked multi-head attention (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Dense FeedForward Module:**
+  - Hidden layer dimension: 11,008
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 27. Qwen3 4B
+- **Vocabulary Size:** 151k
+- **Supported Context Length:** 41k tokens
+- **Embedding Dimension:** 2,560
+- **Architecture Flow:**
+  - Token embedding layer -> 36x Blocks -> Final RMSNorm -> Linear output layer
+  - **36x Block Details:**
+    - RMSNorm 1 -> Masked grouped-query attention (with Q/K RMSNorm, RoPE) -> Add (Residual)
+    - RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 32 heads.
+- **Dense FeedForward Module:**
+  - Hidden layer dimension: 9,728
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 28. Qwen3.5 (397B)
+- **Vocabulary Size:** 248k
+- **Embedding Size:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 60x Layers -> Final RMSNorm -> Linear output layer
+  - **60x Layers Details:**
+    - RMSNorm 1 -> Gated DeltaNet or Gated Attention (Partial RoPE only in attention layers) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Gated attention module:** Q, K, V -> QKNorm (RMSNorms) -> Scaled dot-product attention -> (x) Sigmoid Gate -> Linear.
+- **Gated DeltaNet module:** Q, K, V -> L2 Norm, Conv, Conv -> SiLU gate -> Gated Delta Rule -> RMSNorm -> (x) Sigmoid Gate -> Linear.
+- **MoE Details:** 512 experts, 17B parameters active.
+- **3:1 Ratio Layout:**
+  - Layer 1-3: Linear attention -> MoE
+  - Layer 4: Full attention -> MoE
+  - Layer 5-7: Linear attention -> MoE
+  - Layer 8: Full attention -> MoE
+
+***
+
+# 29. Qwen3 8B
+- **Vocabulary Size:** 151k
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 36x Blocks -> Final RMSNorm -> Linear output layer
+  - **36x Block Details:**
+    - Pre-RMSNorm 1 -> Grouped-query attention (with QKNorm, RoPE) -> Add (Residual)
+    - Pre-RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 32 attention heads, 8 key & value heads.
+- **Dense FeedForward Module:**
+  - Input size: 4,096
+  - Intermediate projection size: 3x4,096 = 12,288
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 30. Qwen3 32B
+- **Vocabulary Size:** 151k
+- **Embedding Dimension:** 5,120
+- **Architecture Flow:**
+  - Token embedding layer -> 64x Blocks -> Final RMSNorm -> Linear output layer
+  - **64x Block Details:**
+    - Pre-RMSNorm 1 -> Grouped-query attention (with QKNorm, RoPE) -> Add (Residual)
+    - Pre-RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 64 attention heads, 8 key & value heads.
+- **Dense FeedForward Module:**
+  - Input size: 5,120
+  - Intermediate projection size: 5x5,120 = 25,600
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 31. Qwen3 235B-A22B
+- **Vocabulary Size:** 151k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 94x Blocks -> Final RMSNorm -> Linear output layer
+  - **94x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (with Q/K RMSNorm, RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 1,536
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 128
+- **Resource Savings:**
+  - Model size is 235B
+  - Only 8 experts active per token
+  - Only 22B parameters are active per inference step
+
+***
+
+# 32. Qwen3 Next 80B-A3B
+- **Architecture Flow:**
+  - Token embedding layer -> 48x Layers -> Final RMSNorm -> Linear output layer
+  - **48x Layers Details:**
+    - RMSNorm 1 -> Gated DeltaNet or Gated Attention (Partial RoPE only in attention layers) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Gated attention module:** Q, K, V -> QKNorm (RMSNorms) -> Scaled dot-product attention -> (x) Sigmoid Gate -> Linear.
+- **Gated DeltaNet module:** Q, K, V -> L2 Norm, Conv, Conv -> SiLU gate -> Gated Delta Rule -> RMSNorm -> (x) Sigmoid Gate -> Linear.
+- **3:1 Ratio Layout:**
+  - Layer 1-3: Linear attention -> MoE
+  - Layer 4: Full attention -> MoE
+  - Layer 5-7: Linear attention -> MoE
+  - Layer 8: Full attention -> MoE
+
+***
+
+# 33. Sarvam 30B
+- **Vocabulary Size:** 262k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 19x Blocks -> Final RMSNorm -> Linear output layer
+  - **19x Block Details:**
+    - RMSNorm 1 -> Grouped-query Attention (GQA) (with QK-Norm, RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First block uses dense FFN with hidden size 8,192 instead of MoE.
+- **Attention Heads:** 64 attention heads, 4 KV heads. Head dim. 64.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 4,096
+  - Intermediate projection size: 1,024
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 128
+  - 6 experts active per token + 1 shared expert.
+
+***
+
+# 34. Sarvam 105B
+- **Vocabulary Size:** 262k
+- **Supported Context Length:** 128k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 32x Blocks -> Final RMSNorm -> Linear output layer
+  - **32x Block Details:**
+    - RMSNorm 1 -> Multi-Head Latent Attention (MLA) (with KV LayerNorm, NoPE + RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First block uses dense FFN with hidden size 16,384 instead of MoE.
+- **Attention Heads:** 64 attention heads.
+  - Q head dim. 192, V head dim. 128
+  - Uncompressed dim. 64 * (128 + 192) = 20,480
+  - Compressed latent dim. 576
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Input expert size: 4,096
+  - Intermediate projection size: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 128
+  - 8 experts active per token + 1 shared expert.
+
+***
+
+# 35. SmolLM3 3B
+- **Vocabulary Size:** 128k
+- **Supported Context Length:** 65k tokens
+- **Embedding Dimension:** 2,048
+- **Architecture Flow:**
+  - Token embedding layer -> 36x Blocks -> Final RMSNorm -> Linear output layer
+  - **36x Block Details:**
+    - RMSNorm 1 -> Masked grouped-query attention (with RoPE, NoPE every 4th layer) -> Add (Residual)
+    - RMSNorm 2 -> Feed forward -> Add (Residual)
+- **Attention Heads:** 16 heads.
+- **Dense FeedForward Module:**
+  - Hidden layer dimension: 11,008
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 36. Step 3.5 Flash (196B)
+- **Vocabulary Size:** 129k
+- **Supported Context Length:** 256k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 45x Blocks -> Final RMSNorm -> Linear output layer
+  - **45x Block Details:**
+    - RMSNorm 1 -> Grouped Query Attention (GQA) + Sliding Window Attention (SWA) in 3:1 ratio (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First 3 blocks use dense FFN with hidden size 11,264 instead of MoE.
+- **Attention Heads:** 64 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 1,280
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 288
+- **Resource Savings:**
+  - Model size is 196B
+  - 1 (shared) + 8 experts active per token
+  - Only 11B parameters are active per inference step
+
+***
+
+# 37. Tiny Aya 3.35B
+- **Vocabulary Size:** 262k
+- **Embedding Dimension:** 2,048
+- **Architecture Flow:**
+  - Token embedding layer -> 36x Blocks -> Final LayerNorm -> Linear output layer
+  - **36x Block Details:**
+    - LayerNorm -> Grouped Query Attention (GQA) + Sliding Window Attention (SWA) in 3:1 ratio (with RoPE + NoPE) -> Add (Residual)
+    - LayerNorm -> Feed forward -> Add (Residual)
+- **Attention Heads:** 16 attention heads, 4 key & value heads.
+- **Dense FeedForward Module:**
+  - Input size: 2,048
+  - Intermediate projection size: 11,008
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+
+***
+
+# 38. Xiaomi MiMo-V2-Flash (309B)
+- **Vocabulary Size:** 152k
+- **Supported Context Length:** 256k tokens
+- **Embedding Dimension:** 4,096
+- **Architecture Flow:**
+  - Token embedding layer -> 61x Blocks -> Final RMSNorm -> Linear output layer
+  - **61x Block Details:**
+    - RMSNorm 1 -> Grouped Query Attention (GQA) + Sliding window attention (SWA) in 5:1 ratio (with RoPE) -> Add (Residual)
+    - RMSNorm 2 -> MoE -> Add (Residual)
+- **Special Notes:** First block uses dense FFN with hidden size 16,384 instead of MoE.
+- **Attention Heads:** 64 heads.
+- **MoE / FeedForward (SwiGLU) Module:**
+  - Intermediate hidden layer dimension: 2,048
+  - Structure: Linear layer -> SiLU activation, Linear layer -> (x) -> Linear layer
+  - Experts: Router -> Feed forward 1 ... 256
+- **Resource Savings:**
+  - Model size is 309B
+  - 1 (shared) + 8 experts active per token
+  - Only 15B parameters are active per inference step
